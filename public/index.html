@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jarod Glover | Developer Portfolio</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <script>
@@ -91,7 +94,6 @@
             text-decoration: none;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
         }
 
         .logo span {
@@ -912,6 +914,111 @@
                 margin: 0 auto 1rem;
             }
         }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .project-card {
+            background: var(--surface);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            border-color: var(--primary);
+        }
+
+        .project-image {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .project-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .project-card:hover .project-image img {
+            transform: scale(1.05);
+        }
+
+        .project-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+        }
+
+        .project-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .project-tag {
+            padding: 0.3rem 0.8rem;
+            background: rgba(253, 184, 39, 0.1);
+            border: 1px solid rgba(253, 184, 39, 0.2);
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: var(--accent);
+        }
+
+        .project-content {
+            padding: 1.5rem;
+        }
+
+        .project-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            color: var(--text);
+        }
+
+        .project-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .project-links {
+            display: flex;
+            gap: 1rem;
+            margin: 1.2rem 0;
+        }
+
+        .project-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .project-link:hover {
+            color: var(--accent);
+            transform: translateX(3px);
+        }
+
+        @media (max-width: 768px) {
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 
@@ -920,7 +1027,7 @@
     <header id="header">
         <div class="container">
             <nav>
-                <a href="#" class="logo">Jarod<span>.</span></a>
+                <a href="#" class="logo">jg<span>.</span></a>
                 <ul class="nav-links">
                     <li><a href="#home" class="active">Home</a></li>
                     <li><a href="#about">About</a></li>
@@ -1035,7 +1142,7 @@
             
             <div class="about-grid">
                 <div class="about-image">
-                    <img src="/api/placeholder/400/320" alt="Jarod Glover">
+                    <img src="/assets/jarod-photo.jpg" alt="Jarod Glover">
                     <div class="experience-card">
                         <h3>5+</h3>
                         <p>Years of Experience</p>
@@ -1043,9 +1150,9 @@
                 </div>
                 
                 <div class="about-content">
-                    <h3>Full Stack Developer with a passion for clean, efficient code</h3>
-                    <p class="about-text">I'm a <strong>Full Stack Developer</strong> with expertise in building modern web applications. My journey in tech is complemented by my love for music and sports, particularly Liverpool FC.</p>
-                    <p class="about-text">With experience in various tech stacks and a keen eye for user experience, I create seamless digital experiences that solve real-world problems. I'm constantly learning and adapting to new technologies while maintaining a focus on clean, efficient code.</p>
+                    <h3>Full Stack Developer with a passion for integrations and system design</h3>
+                    <p class="about-text">I'm a <strong>Full Stack Developer</strong> with expertise in building modern web applications. My journey in tech is complemented by my love for music and sports, particularly new music discovery and Liverpool FC.</p>
+                    <p class="about-text">With experience in various tech stacks and a background in customer experience, I create digital experiences and solutions that solve real-world problems. I'm constantly learning and adapting to new technologies while maintaining a focus on clean, efficient code.</p>
                     
                     <div class="about-features">
                         <div class="feature-item">
@@ -1159,10 +1266,86 @@
                 <p class="section-description">A selection of my recent work showcasing my skills and expertise.</p>
             </div>
             
-            <!-- Portfolio grid would go here -->
-            <div style="text-align: center; padding: 5rem 0; background: var(--surface); border-radius: 16px; margin-top: 2rem;">
-                <h3 style="color: var(--text); margin-bottom: 1rem;">Portfolio Projects Coming Soon</h3>
-                <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto;">Check back soon to see a showcase of my latest projects and work.</p>
+            <div class="projects-grid">
+                <div class="project-card">
+                    <div class="project-image">
+                        <img src="/assets/sweetest-lime-logo.png" alt="The Sweetest Lime Salon Website">
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title">The Sweetest Lime Salon</h3>
+                        <p class="project-description">A modern salon website featuring service booking, online payments, and client management through Square integration.</p>
+                        <div class="project-links">
+                            <a href="https://thesweetestlime.com/" class="project-link" target="_blank">
+                                <i class="fas fa-external-link-alt"></i>
+                                Live Site
+                            </a>
+                            <a href="https://github.com/jdotglove/the-sweetest-lime-web" class="project-link" target="_blank">
+                                <i class="fab fa-github"></i>
+                                Source Code
+                            </a>
+                        </div>
+                        <div class="project-tags">
+                            <span class="project-tag">TypeScript</span>
+                            <span class="project-tag">Nuxt.js</span>
+                            <span class="project-tag">Tailwind CSS</span>
+                            <span class="project-tag">Square API</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-image">
+                        <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: var(--surface);">
+                            <span style="font-family: 'Outfit', sans-serif; font-size: 8rem; font-weight: 700; color: var(--text); opacity: 0.1;">jg</span>
+                            <span style="font-family: 'Outfit', sans-serif; font-size: 8rem; font-weight: 700; color: var(--primary);">.</span>
+                        </div>
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title">Spotify Playlist Analyzer</h3>
+                        <p class="project-description">A music analysis tool that provides insights and recommendations for new Spotify playlists using advanced audio features and machine learning.</p>
+                        <div class="project-links">
+                            <a href="https://github.com/jdotglove/audionest-v2" class="project-link" target="_blank">
+                                <i class="fab fa-github"></i>
+                                Source Code
+                            </a>
+                        </div>
+                        <div class="project-tags">
+                            <span class="project-tag">Next.js</span>
+                            <span class="project-tag">Tailwind CSS</span>
+                            <span class="project-tag">Node.js</span>
+                            <span class="project-tag">AWS</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-image">
+                        <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: var(--surface);">
+                            <span style="font-family: 'Outfit', sans-serif; font-size: 8rem; font-weight: 700; color: var(--text); opacity: 0.1;">jg</span>
+                            <span style="font-family: 'Outfit', sans-serif; font-size: 8rem; font-weight: 700; color: var(--primary);">.</span>
+                        </div>
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title">Task Management System</h3>
+                        <p class="project-description">A full-stack task management application with a clean, responsive interface and real-time updates.</p>
+                        <div class="project-links">
+                            <a href="https://github.com/jdotglove/task-manager-frontend" class="project-link" target="_blank">
+                                <i class="fab fa-github"></i>
+                                Frontend Code
+                            </a>
+                            <a href="https://github.com/jdotglove/task-manager-backend" class="project-link" target="_blank">
+                                <i class="fab fa-github"></i>
+                                Backend Code
+                            </a>
+                        </div>
+                        <div class="project-tags">
+                            <span class="project-tag">HTML/CSS</span>
+                            <span class="project-tag">JavaScript</span>
+                            <span class="project-tag">TypeScript</span>
+                            <span class="project-tag">MongoDB</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -1190,7 +1373,7 @@
     <!-- Footer -->
     <footer style="padding: 4rem 0 2rem; text-align: center; border-top: 1px solid var(--border); margin-top: 4rem;">
         <div class="container">
-            <a href="#" class="logo" style="margin-bottom: 2rem; display: inline-block;">Jarod<span>.</span></a>
+            <a href="#" class="logo" style="margin-bottom: 2rem; display: inline-block;">jg<span>.</span></a>
             
             <div style="display: flex; justify-content: center; gap: 2rem; margin: 2rem 0;">
                 <a href="#home" style="color: var(--text-secondary); text-decoration: none; font-size: 0.9rem; transition: color 0.3s ease;">Home</a>

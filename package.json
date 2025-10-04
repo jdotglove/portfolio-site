@@ -12,11 +12,18 @@
   "license": "ISC",
   "devDependencies": {
     "@types/express": "^5.0.1",
+    "@types/ws": "^8.18.1",
     "express": "^5.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "ws": "^8.18.2"
+    "@types/cookie-parser": "^1.4.9",
+    "@types/jsonwebtoken": "^9.0.10",
+    "axios": "^1.10.0",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^16.5.0",
+    "jsonwebtoken": "^9.0.2",
+    "ws": "^8.18.3"
   }
 }

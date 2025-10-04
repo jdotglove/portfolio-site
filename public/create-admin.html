@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Admin | The Glover Dimension</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/signup.css">
+</head>
+<body>
+    <div class="container signup-container">
+        <h2 class="signup-title">Create Admin Account</h2>
+        <form id="signup-form">
+            <div class="mb-1-5">
+                <label for="username" class="signup-label">Username</label>
+                <input type="text" id="username" name="username" required class="signup-input">
+            </div>
+            <div>
+                <label for="password" class="signup-label">Password</label>
+                <input type="password" id="password" name="password" required class="signup-input">
+            </div>
+            <div class="mb-2">
+                <label for="confirm-password" class="signup-label">Confirm Password</label>
+                <input type="password" id="confirm-password" name="confirm-password" required class="signup-input">
+            </div>
+            <button type="submit" class="btn btn-primary signup-btn">Create Account</button>
+            <div id="login-message" class="login-message"></div>
+        </form>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="/javascript/signup.js"></script>
+</body>
+</html> 

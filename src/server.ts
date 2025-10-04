@@ -13,6 +13,10 @@ app.use(express.static(path.resolve(__dirname, "../public")));
 app.use(cookieParser());
 app.use('/api', router);
 
+app.get("/", (_req: Request, res: Response) => {
+    console.log("Serving index.html");
+    res.sendFile(path.resolve(__dirname, "../public", "index.html"));
+});
 
 app.get("/knowledge-hub", (req: Request, res: Response) => {
     console.log("Serving knowledge-hub.html");
@@ -28,13 +32,6 @@ app.get("/create-admin", (_req: Request, res: Response) => {
     console.log("Serving create-admin.html");
     res.sendFile(path.resolve(__dirname, "../public", "create-admin.html"));
 });
-
-app.get("/", (_req: Request, res: Response) => {
-    console.log("Serving index.html");
-    res.sendFile(path.resolve(__dirname, "../public", "index.html"));
-});
-
-
 
 app.listen(port, () => {
     console.log(`Server listening on port ${port}`);

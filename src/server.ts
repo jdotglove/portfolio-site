@@ -18,17 +18,17 @@ app.get("/", (_req: Request, res: Response) => {
     res.sendFile(path.resolve(__dirname, "public", "index.html"));
 });
 
-app.get("/knowledge-hub", (req: Request, res: Response) => {
+app.get(["/knowledge-hub", "/knowledge-hub/"], (req: Request, res: Response) => {
     console.log("Serving knowledge-hub.html");
     res.sendFile(path.resolve(__dirname, "knowledge-hub.html"));
 })
 
-app.get("/login", (_req: Request, res: Response) => {
+app.get(["/login", "/login/"], (_req: Request, res: Response) => {
     console.log("Serving login.html");
     res.sendFile(path.resolve(__dirname, "login.html"));
 });
 
-app.get("/create-admin", (_req: Request, res: Response) => {
+app.get(["/create-admin", "/create-admin/"], (_req: Request, res: Response) => {
     console.log("Serving create-admin.html");
     res.sendFile(path.resolve(__dirname, "create-admin.html"));
 });

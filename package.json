@@ -4,7 +4,7 @@
   "description": "portfolio site for jarod glover to showcase experiences and past projects",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && cp -r public dist/",
     "start": "node dist/server.js",
     "dev": "ts-node src/server.ts"
   },

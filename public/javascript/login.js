@@ -1,4 +1,7 @@
 document.getElementById('login-form').addEventListener('submit', async function (e) {
+    console.log('=== Login Form Submit Debug ===');
+    console.log('Event:', e);
+    console.log('Preventing default...');
     e.preventDefault();
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
@@ -21,7 +24,16 @@ document.getElementById('login-form').addEventListener('submit', async function 
             messageDiv.textContent = response.data.message || 'Login failed.';
         }
     } catch (error) {
+        console.error('Login error:', error);
+        console.error('Error response:', error.response);
         messageDiv.style.color = 'var(--primary)';
         messageDiv.textContent = error.response?.data?.message || 'An error occurred during login.';
     }
-}); 
+});
+
+// Add this to see if the form is being submitted multiple times
+let submitCount = 0;
+document.getElementById('login-form').addEventListener('submit', function(e) {
+    submitCount++;
+    console.log(`Form submit event #${submitCount}`);
+});

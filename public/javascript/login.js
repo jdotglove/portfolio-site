@@ -1,4 +1,4 @@
-document.getElementById('login-form').addEventListener('submit', async function (e) {
+document.getElementById('login-btn').addEventListener('click', async function (e) {
     console.log('=== Login Form Submit Debug ===');
     console.log('Event:', e);
     console.log('Preventing default...');
@@ -8,12 +8,7 @@ document.getElementById('login-form').addEventListener('submit', async function 
     const messageDiv = document.getElementById('login-message');
     messageDiv.textContent = '';
     try {
-        //const response = await axios.post('/api/admin/login', { username, password });
-        const response = await axios({
-            method: 'POST',
-            url: '/api/admin/login',
-            data: { username, password },
-        })
+        const response = await axios.post('/api/admin/login/', { username, password });
         if (response.data && response.data.success) {
             const session = response.data.session;
             console.log('Login successful:', session);

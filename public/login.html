@@ -11,7 +11,7 @@
 <body>
     <div class="container login-container">
         <h2 class="login-title">Login</h2>
-        <form id="login-form" method="post" action="/api/admin/login">
+        <div id="login-form" method="post" action="/api/admin/login">
             <div class="mb-1-5">
                 <label for="username" class="login-label">Username</label>
                 <input type="text" id="username" name="username" required class="login-input">
@@ -20,9 +20,9 @@
                 <label for="password" class="login-label">Password</label>
                 <input type="password" id="password" name="password" required class="login-input">
             </div>
-            <button type="submit" class="btn btn-primary login-btn">Login</button>
+            <button id="login-btn" class="btn btn-primary login-btn">Login</button>
             <div id="login-message" class="login-message"></div>
-        </form>
+        </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="/javascript/login.js"></script>

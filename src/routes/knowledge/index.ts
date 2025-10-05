@@ -1,10 +1,10 @@
-import express from '../../plugins/express';
+import express from "../../plugins/express";
 import {
   knowledgeNest,
-} from './handlers';
+} from "./handlers";
 
 const router = express.Router();
 
-router.post('/', knowledgeNest);
+router.post("/", knowledgeNest);
 
 export default router;

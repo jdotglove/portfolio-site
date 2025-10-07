@@ -1,11 +1,14 @@
-document.getElementById('login-form').addEventListener('submit', async function (e) {
+document.getElementById('login-btn').addEventListener('click', async function (e) {
+    console.log('=== Login Form Submit Debug ===');
+    console.log('Event:', e);
+    console.log('Preventing default...');
     e.preventDefault();
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
     const messageDiv = document.getElementById('login-message');
     messageDiv.textContent = '';
     try {
-        const response = await axios.post('/api/admin/login', { username, password });
+        const response = await axios.post('/api/admin/login/', { username, password });
         if (response.data && response.data.success) {
             const session = response.data.session;
             console.log('Login successful:', session);
@@ -21,7 +24,16 @@ document.getElementById('login-form').addEventListener('submit', async function 
             messageDiv.textContent = response.data.message || 'Login failed.';
         }
     } catch (error) {
+        console.error('Login error:', error);
+        console.error('Error response:', error.response);
         messageDiv.style.color = 'var(--primary)';
         messageDiv.textContent = error.response?.data?.message || 'An error occurred during login.';
     }
-}); 
+});
+
+// Add this to see if the form is being submitted multiple times
+let submitCount = 0;
+document.getElementById('login-form').addEventListener('submit', function(e) {
+    submitCount++;
+    console.log(`Form submit event #${submitCount}`);
+});

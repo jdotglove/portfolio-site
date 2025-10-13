@@ -25,12 +25,12 @@ RUN npm run build
 # Copy public files to dist
 RUN cp -r public/* dist/
 
-# Remove dev dependencies to reduce image size
-RUN npm prune --production
-
 # Change ownership to non-root user
 RUN chown -R appuser:nodejs /app
 USER appuser
+
+# Remove dev dependencies to reduce image size (as non-root user)
+RUN npm prune --production
 
 # Expose port
 EXPOSE 8080

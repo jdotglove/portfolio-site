@@ -1,7 +1,22 @@
 // Wait for DOM to load
 let wsManager;
-wsManager = new WebSocket("ws://localhost:8000/ws");
 
+
+try {
+  fetch("/api/config", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }).then(response => response.json()).then(data => {
+    console.log(data);
+    wsManager = new WebSocket(data.config.socketUrl || "ws://localhost:8000/ws");
+  }).catch(error => {
+    console.error("Error fetching config:", error);
+  });
+} catch (error) {
+  console.error("Error fetching config:", error);
+}
 
 window.addEventListener("DOMContentLoaded", function () {
 

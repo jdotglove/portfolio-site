@@ -1,31 +1,7 @@
 // Wait for DOM to load
 let wsManager;
 
-
-try {
-  fetch("/api/config", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  }).then(response => response.json()).then(data => {
-    console.log(data);
-    wsManager = new WebSocket(data.config.socketUrl || "ws://localhost:8000/ws");
-  }).catch(error => {
-    console.error("Error fetching config:", error);
-  });
-} catch (error) {
-  console.error("Error fetching config:", error);
-}
-
 window.addEventListener("DOMContentLoaded", function () {
-
-  // Initialize WebSocket connection
-  
-  wsManager.addEventListener("message", (event) => {
-    addMessageToChat("assistant", event.data);
-  });
-
   let selectedConversationId = null;
   const form = document.querySelector(".chat-input-bar");
   const input = form.querySelector("input[type='text']");
@@ -39,6 +15,45 @@ window.addEventListener("DOMContentLoaded", function () {
   const conversationNameInput = document.getElementById("conversationNameInput");
   const createConversationBtn = document.getElementById("createConversationBtn");
   const cancelConversationBtn = document.getElementById("cancelConversationBtn");
+
+  try {
+    fetch("/api/config", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then(response => response.json()).then(data => {
+      console.log(data);
+      wsManager = new WebSocket(data.config.socketUrl || "ws://localhost:8000/ws");
+
+      // Initialize WebSocket connection
+      wsManager.addEventListener("message", (event) => {
+        addMessageToChat("assistant", event.data);
+      });
+
+          // Handle form submission
+      form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const message = input.value.trim();
+        if (!message) return;
+
+        try {
+          // Add user message to chat
+          addMessageToChat("user", message);
+          input.value = "";
+          wsManager.send(JSON.stringify({ message, conversationId: selectedConversationId }));
+          //axios.post("/api/knowledge", { message, conversationId: selectedConversationId });
+        } catch (error) {
+          console.error("Error sending message:", error);
+          addMessageToChat("assistant", "Sorry, I encountered an error. Please try again.");
+        }
+      });
+    }).catch(error => {
+      console.error("Error fetching config:", error);
+    });
+  } catch (error) {
+    console.error("Error fetching config:", error);
+  }
 
   // Modal functionality
   function showConversationModal() {
@@ -127,24 +142,6 @@ window.addEventListener("DOMContentLoaded", function () {
 
   // Load conversations on page load
   loadConversations();
-
-  // Handle form submission
-  form.addEventListener("submit", async function (e) {
-    e.preventDefault();
-    const message = input.value.trim();
-    if (!message) return;
-
-    try {
-      // Add user message to chat
-      addMessageToChat("user", message);
-      input.value = "";
-      wsManager.send(JSON.stringify({ message, conversationId: selectedConversationId }));
-      //axios.post("/api/knowledge", { message, conversationId: selectedConversationId });
-    } catch (error) {
-      console.error("Error sending message:", error);
-      addMessageToChat("assistant", "Sorry, I encountered an error. Please try again.");
-    }
-  });
 
   // Function to load conversations from API
   async function loadConversations() {

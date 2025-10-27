@@ -1,7 +1,4 @@
 document.getElementById('login-btn').addEventListener('click', async function (e) {
-    console.log('=== Login Form Submit Debug ===');
-    console.log('Event:', e);
-    console.log('Preventing default...');
     e.preventDefault();
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;

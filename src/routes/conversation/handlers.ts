@@ -13,7 +13,7 @@ export const getConversations = async (req: Request, res: Response) => {
   try {
     // Get session token from cookies
     const sessionToken = req.cookies?.session_token;
-    console.log(sessionToken, req.cookies);
+    
     if (!sessionToken) {
       res.status(SERVER_RESPONSE_CODES.FORBIDDEN).send({
         success: false,

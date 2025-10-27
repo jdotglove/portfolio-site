@@ -16,7 +16,7 @@ export const adminLogin = async (req: Request, res: Response) => {
     if (!req.body.username || !req.body.password) {
       throw new Error("Username and password are required");
     }
-    console.log("Reqest Body: ", req.body, "API Base URL: ", process.env.API_BASE_URL);
+    
     const response = await axios(`${process.env.API_BASE_URL}/admin/login`, {
       method: "POST",
       data: {

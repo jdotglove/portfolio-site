@@ -49,19 +49,15 @@ app.use(express_1.default.static(path.resolve(__dirname, "public")));
 app.use((0, cookie_parser_1.default)());
 app.use("/api", routes_1.default);
 app.get("/", (_req, res) => {
-    console.log("Serving index.html");
     res.sendFile(path.resolve(__dirname, "public", "index.html"));
 });
 app.get("/knowledge-hub", (req, res) => {
-    console.log("Serving knowledge-hub.html");
     res.sendFile(path.resolve(__dirname, "public", "knowledge-hub.html"));
 });
 app.get("/login", (_req, res) => {
-    console.log("Serving login.html");
     res.sendFile(path.resolve(__dirname, "public", "login.html"));
 });
 app.get("/create-admin", (_req, res) => {
-    console.log("Serving create-admin.html");
     res.sendFile(path.resolve(__dirname, "public", "create-admin.html"));
 });
 // Graceful shutdown for App Runner

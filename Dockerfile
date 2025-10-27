@@ -16,6 +16,14 @@ COPY package*.json ./
 # Install dependencies
 RUN npm ci
 
+# Accept build arguments for environment variables
+ARG NODE_ENV=production
+ARG PORT=8080
+ARG DATABASE_URL
+ARG JWT_SECRET
+ARG API_KEY
+ARG EXTERNAL_API_URL
+
 # Copy source code
 COPY . .
 
@@ -35,9 +43,13 @@ RUN npm prune --production
 # Expose port
 EXPOSE 8080
 
-# Set environment variables
-ENV NODE_ENV=production
-ENV PORT=8080
+# Set environment variables from build args
+ENV NODE_ENV=$NODE_ENV
+ENV PORT=$PORT
+ENV DATABASE_URL=$DATABASE_URL
+ENV JWT_SECRET=$JWT_SECRET
+ENV API_KEY=$API_KEY
+ENV EXTERNAL_API_URL=$EXTERNAL_API_URL
 
 # Start the application with dumb-init
 ENTRYPOINT ["dumb-init", "--"]

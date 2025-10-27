@@ -8,13 +8,14 @@ import { Request, Response } from "../../plugins/express";
  * @param req 
  * @param res 
  */
-export const getAppConfig = async (req: Request, res: Response) => {
+export const getAppConfig = async (_req: Request, res: Response) => {
     let payload, statusCode;
     try {
         payload = {
             success: true,
             config: {
-                socketUrl: process.env.MAIN_SERVER_SOCKET_URL,
+                streamingEnabled: true,
+                baseUrl: process.env.API_BASE_URL,
             },
         };
         statusCode = SERVER_RESPONSE_CODES.ACCEPTED;

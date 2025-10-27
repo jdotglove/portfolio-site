@@ -8,21 +8,6 @@ import configRouter from './config';
 
 const router = express.Router();
 
-// Debug route to test if main router is working
-router.get('/debug', (req, res) => {
-    res.json({
-        message: 'Main API router is working',
-        timestamp: new Date().toISOString(),
-        path: req.path,
-        method: req.method,
-        routes: {
-            knowledge: '/api/knowledge',
-            admin: '/api/admin',
-            conversation: '/api/conversation'
-        }
-    });
-});
-
 // General Routes
 router.use('/knowledge', knowledgeRouter);
 router.use('/admin', adminRouter);

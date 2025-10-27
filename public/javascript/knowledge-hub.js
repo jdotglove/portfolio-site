@@ -1,8 +1,8 @@
 // Wait for DOM to load
-let wsManager;
+let currentEventSource = null;
+let baseUrl = null;
 
-window.addEventListener("DOMContentLoaded", function () {
-  let selectedConversationId = null;
+window.addEventListener("DOMContentLoaded", async function () {
   const form = document.querySelector(".chat-input-bar");
   const input = form.querySelector("input[type='text']");
   const sendButton = form.querySelector("button[type='submit']");
@@ -16,44 +16,77 @@ window.addEventListener("DOMContentLoaded", function () {
   const createConversationBtn = document.getElementById("createConversationBtn");
   const cancelConversationBtn = document.getElementById("cancelConversationBtn");
 
-  try {
-    fetch("/api/config", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }).then(response => response.json()).then(data => {
-      console.log(data);
-      wsManager = new WebSocket(data.config.socketUrl || "ws://localhost:8000/ws");
+  let selectedConversationId = null;
+  let currentUserId = null;
 
-      // Initialize WebSocket connection
-      wsManager.addEventListener("message", (event) => {
-        addMessageToChat("assistant", event.data);
-      });
+  
 
-          // Handle form submission
-      form.addEventListener("submit", async function (e) {
-        e.preventDefault();
-        const message = input.value.trim();
-        if (!message) return;
+  // Handle form submission with Server-Sent Events
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const message = input.value.trim();
+    if (!message) return;
 
+    try {
+      // Add user message to chat
+      addMessageToChat("user", message);
+      input.value = "";
+      
+      // Close any existing EventSource connection
+      if (currentEventSource) {
+        currentEventSource.close();
+      }
+
+      // Create new EventSource for streaming response
+      const eventSource = new EventSource(`/api/knowledge?message=${encodeURIComponent(message)}&conversationId=${selectedConversationId || ''}&userId=${currentUserId}`);
+      currentEventSource = eventSource;
+
+      // Handle streaming messages
+      eventSource.onmessage = function(event) {
         try {
-          // Add user message to chat
-          addMessageToChat("user", message);
-          input.value = "";
-          wsManager.send(JSON.stringify({ message, conversationId: selectedConversationId }));
-          //axios.post("/api/knowledge", { message, conversationId: selectedConversationId });
+          const data = JSON.parse(event.data);
+          if (event.data && event.data !== "") {
+            switch(data.type) {
+              case 'connected':
+                console.log('Connected to knowledge stream');
+                break;
+                
+              case 'message':
+                // Append chunk to assistant message
+                addMessageToChat("assistant", data.message);
+                break;
+                
+              case 'complete':
+                console.log('Streaming complete');
+                eventSource.close();
+                currentEventSource = null;
+                break;
+                
+              case 'error':
+                console.error('Streaming error:', data.message);
+                addMessageToChat("assistant", "Sorry, I encountered an error. Please try again.");
+                eventSource.close();
+                currentEventSource = null;
+                break;
+            }
+          }
         } catch (error) {
-          console.error("Error sending message:", error);
-          addMessageToChat("assistant", "Sorry, I encountered an error. Please try again.");
+          console.error('Error parsing SSE data:', error);
         }
-      });
-    }).catch(error => {
-      console.error("Error fetching config:", error);
-    });
-  } catch (error) {
-    console.error("Error fetching config:", error);
-  }
+      };
+
+      eventSource.onerror = function(event) {
+        console.error('EventSource error:', event);
+        addMessageToChat("assistant", "Connection error. Please try again.");
+        eventSource.close();
+        currentEventSource = null;
+      };
+
+    } catch (error) {
+      console.error("Error sending message:", error);
+      addMessageToChat("assistant", "Sorry, I encountered an error. Please try again.");
+    }
+  });
 
   // Modal functionality
   function showConversationModal() {
@@ -177,13 +210,11 @@ window.addEventListener("DOMContentLoaded", function () {
   async function loadConversationMessages(conversationId) {
     try {
       const response = await axios.get(`/api/conversation/${conversationId}/messages`);
-      console.log(response.data.messages);
+      currentUserId = response.data?.messages[0]?.user;
       response.data.messages?.forEach((messageData) => {
         if (messageData.sender === "user") {
-          console.log("user", messageData.body);
           addMessageToChat("user", messageData.body);
         } else {
-          console.log("assistant", messageData.body);
           addMessageToChat("assistant", messageData.body);
         }
       });
@@ -241,7 +272,6 @@ window.addEventListener("DOMContentLoaded", function () {
       
       // Add click handler
       listItem.addEventListener('click', function() {
-        console.log(conversation);
         selectConversation(conversation._id);
       });
       
@@ -326,9 +356,15 @@ window.addEventListener("DOMContentLoaded", function () {
       const messageElement = selectedItem.querySelector('div:nth-child(2)');
       const dateElement = selectedItem.querySelector('div:last-child');
       
-      if (titleElement) titleElement.style.color = 'white';
-      if (messageElement) messageElement.style.color = 'rgba(255,255,255,0.8)';
-      if (dateElement) dateElement.style.color = 'rgba(255,255,255,0.6)';
+      if (titleElement) {
+        titleElement.style.color = 'white';
+      }
+      if (messageElement) {
+        messageElement.style.color = 'rgba(255,255,255,0.8)';
+      }
+      if (dateElement) {
+        dateElement.style.color = 'rgba(255,255,255,0.6)';
+      }
     }
     selectedConversationId = conversationId;
     // TODO: Load conversation messages

@@ -1,14 +1,14 @@
-import express from '../../plugins/express';
+import express from "../../plugins/express";
 import {
   getConversations,
   createConversation,
   getConversationMessages,
-} from './handlers';
+} from "./handlers";
 
 const router = express.Router();
 
-router.get('/', getConversations);
-router.post('/', createConversation);
-router.get('/:conversationId/messages', getConversationMessages);
+router.get("/", getConversations);
+router.post("/", createConversation);
+router.get(["/:conversationId/messages", "/:conversationId/messages/"], getConversationMessages);
 
 export default router;

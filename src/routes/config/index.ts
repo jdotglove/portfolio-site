@@ -1,12 +1,10 @@
 import express from "../../plugins/express";
 import {
-    adminLogin,
-    createAdmin,
+  getAppConfig,
 } from "./handlers";
 
 const router = express.Router();
 
-router.post("/login", adminLogin);
-router.post("/create", createAdmin);
+router.get("/", getAppConfig);
 
 export default router;

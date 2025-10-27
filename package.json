@@ -4,7 +4,7 @@
   "description": "portfolio site for jarod glover to showcase experiences and past projects",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && cp -r public/* dist/",
     "start": "node dist/server.js",
     "dev": "ts-node src/server.ts"
   },
@@ -12,8 +12,6 @@
   "license": "ISC",
   "devDependencies": {
     "@types/express": "^5.0.1",
-    "@types/ws": "^8.18.1",
-    "express": "^5.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   },
@@ -23,7 +21,7 @@
     "axios": "^1.10.0",
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.5.0",
-    "jsonwebtoken": "^9.0.2",
-    "ws": "^8.18.3"
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2"
   }
 }

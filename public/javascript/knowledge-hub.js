@@ -16,10 +16,8 @@ window.addEventListener("DOMContentLoaded", async function () {
   const createConversationBtn = document.getElementById("createConversationBtn");
   const cancelConversationBtn = document.getElementById("cancelConversationBtn");
 
-  let selectedConversationId = null;
+  let selectedConversation = null;
   let currentUserId = null;
-
-  
 
   // Handle form submission with Server-Sent Events
   form.addEventListener("submit", async function (e) {
@@ -30,6 +28,36 @@ window.addEventListener("DOMContentLoaded", async function () {
     try {
       // Add user message to chat
       addMessageToChat("user", message);
+      const conversationItem = document.getElementById(`conversation-${selectedConversation._id}`);
+      conversationItem.style.background = 'var(--primary)';
+      conversationItem.style.borderColor = 'var(--primary)';
+      conversationItem.style.color = 'white';
+       // Create the conversation content
+       const title = selectedConversation.name || selectedConversation.title || `Conversation ${index + 1}`;
+       const lastMessage = selectedConversation.lastMessage ? 
+         (selectedConversation.lastMessage.length > 50 ? 
+          selectedConversation.lastMessage.substring(0, 50) + '...' : 
+          selectedConversation.lastMessage) : 
+         'No messages yet';
+       const date = selectedConversation.updatedAt ? 
+         new Date(selectedConversation.updatedAt).toLocaleDateString() : '';
+ 
+       const time = selectedConversation.updatedAt ? 
+         new Date(selectedConversation.updatedAt).toLocaleTimeString() : '';
+       
+         conversationItem.innerHTML = `
+         <div style='font-weight:500;color:var(--text);margin-bottom:0.25rem;'>
+           ${title}
+         </div>
+         <div style='font-size:0.85rem;opacity:0.7;line-height:1.3;'>
+           ${lastMessage}
+         </div>
+         <div style='font-size:0.75rem;margin-top:0.25rem;opacity:0.5;'>
+           ${date} ${time}
+         </div>
+       `;
+
+
       input.value = "";
       
       // Close any existing EventSource connection
@@ -38,7 +66,7 @@ window.addEventListener("DOMContentLoaded", async function () {
       }
 
       // Create new EventSource for streaming response
-      const eventSource = new EventSource(`/api/knowledge?message=${encodeURIComponent(message)}&conversationId=${selectedConversationId || ''}&userId=${currentUserId}`);
+      const eventSource = new EventSource(`/api/knowledge?message=${encodeURIComponent(message)}&conversationId=${selectedConversation._id || ''}&userId=${currentUserId}`);
       currentEventSource = eventSource;
 
       // Handle streaming messages
@@ -133,7 +161,6 @@ window.addEventListener("DOMContentLoaded", async function () {
 
     try {
       createConversationBtn.disabled = true;
-      
       // Create a new conversation via API
       const response = await axios.post("/api/conversation", { name: conversationName });
       
@@ -148,6 +175,7 @@ window.addEventListener("DOMContentLoaded", async function () {
         if (response.data.conversation && response.data.conversation.id) {
           // Small delay to ensure the DOM is updated
           setTimeout(() => {
+            currentUserId = response.data.conversation.user;
             selectConversation(response.data.conversation._id);
           }, 100);
         }
@@ -180,28 +208,29 @@ window.addEventListener("DOMContentLoaded", async function () {
   async function loadConversations() {
     try {
       // Show loading state
-      conversationList.innerHTML = "<li style='color:var(--text-secondary);text-align:center;padding:1rem;'>Loading conversations...</li>";
+      //conversationList.innerHTML = "<li style='color:var(--text-secondary);text-align:center;padding:1rem;'>Loading conversations...</li>";
       
       const response = await axios.get("/api/conversation");
       
       if (response.data && response.data.conversations) {
-        displayConversations(response.data.conversations);
+        displayConversations(response.data.conversations.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)));
       } else {
         displayConversations([]);
       }
     } catch (error) {
       console.error('Error loading conversations:', error);
+      document.getElementById('newConversationBtn').style.display = 'none';
       // Show error state with retry option
       conversationList.innerHTML = `
         <li style='color:var(--text-secondary);text-align:center;padding:1rem;'>
-          Failed to load conversations
+          <p>Failed to load conversations</p>
           <br>
-          <button 
-            onclick='loadConversations()' 
-            style='margin-top:0.5rem;padding:0.5rem 1rem;background:var(--primary);color:white;border:none;border-radius:4px;cursor:pointer;'
+          <a 
+            href='/login' 
+            style='text-decoration:none;margin-top:0.5rem;padding:0.5rem 1rem;background:var(--primary);color:white;border:none;border-radius:4px;cursor:pointer;'
           >
-            Retry
-          </button>
+            Return to Login
+          </a>
         </li>
       `;
     }
@@ -210,7 +239,6 @@ window.addEventListener("DOMContentLoaded", async function () {
   async function loadConversationMessages(conversationId) {
     try {
       const response = await axios.get(`/api/conversation/${conversationId}/messages`);
-      currentUserId = response.data?.messages[0]?.user;
       response.data.messages?.forEach((messageData) => {
         if (messageData.sender === "user") {
           addMessageToChat("user", messageData.body);
@@ -242,7 +270,8 @@ window.addEventListener("DOMContentLoaded", async function () {
     conversations.forEach((conversation, index) => {
       const listItem = document.createElement('li');
       listItem.className = 'conversation-item';
-      listItem.setAttribute('data-conversation-id', conversation.id);
+      listItem.setAttribute('data-conversation-id', conversation._id);
+      listItem.id = `conversation-${conversation._id}`;
       listItem.style.cssText = `
         padding: 0.75rem 1rem;
         border-radius: 8px;
@@ -272,7 +301,8 @@ window.addEventListener("DOMContentLoaded", async function () {
       
       // Add click handler
       listItem.addEventListener('click', function() {
-        selectConversation(conversation._id);
+        currentUserId = conversation.user;
+        selectConversation(conversation);
       });
       
       // Create the conversation content
@@ -284,6 +314,8 @@ window.addEventListener("DOMContentLoaded", async function () {
         'No messages yet';
       const date = conversation.updatedAt ? 
         new Date(conversation.updatedAt).toLocaleDateString() : '';
+      const time = conversation.updatedAt ? 
+        new Date(conversation.updatedAt).toLocaleTimeString() : '';
       
       listItem.innerHTML = `
         <div style='font-weight:500;color:var(--text);margin-bottom:0.25rem;'>
@@ -293,7 +325,7 @@ window.addEventListener("DOMContentLoaded", async function () {
           ${lastMessage}
         </div>
         <div style='font-size:0.75rem;margin-top:0.25rem;opacity:0.5;'>
-          ${date}
+          ${date} ${time}
         </div>
       `;
       
@@ -303,10 +335,11 @@ window.addEventListener("DOMContentLoaded", async function () {
   }
 
   // Function to add message to chat
-  function addMessageToChat(sender, message) {
+  async function addMessageToChat(sender, message) {
     const messageDiv = document.createElement("div");
     messageDiv.className = `message ${sender}`;
-    messageDiv.textContent = message;
+    messageDiv.style.whiteSpace = 'pre-wrap';
+    messageDiv.innerHTML = message;
     
     // Remove the placeholder message if it exists
     const placeholder = chatMessages.querySelector("div[style*='text-align:center']");
@@ -318,12 +351,14 @@ window.addEventListener("DOMContentLoaded", async function () {
     
     // Scroll to bottom
     chatMessages.scrollTop = chatMessages.scrollHeight;
+    if (sender === "assistant") {
+      await loadConversations();
+    }
+    
   }
 
   // Function to select a conversation
-  function selectConversation(conversationId) {
-    console.log("Selected conversation:", conversationId);
-    
+  function selectConversation(conversation) {
     // Enable input and send button when a conversation is selected
     input.disabled = false;
     sendButton.disabled = false;
@@ -344,7 +379,7 @@ window.addEventListener("DOMContentLoaded", async function () {
       item.style.borderColor = 'transparent';
     });
     
-    const selectedItem = conversationList.querySelector(`[data-conversation-id="${conversationId}"]`);
+    const selectedItem = conversationList.querySelector(`[data-conversation-id="${conversation._id}"]`);
     if (selectedItem) {
       selectedItem.classList.add('active');
       selectedItem.style.background = 'var(--primary)';
@@ -366,9 +401,9 @@ window.addEventListener("DOMContentLoaded", async function () {
         dateElement.style.color = 'rgba(255,255,255,0.6)';
       }
     }
-    selectedConversationId = conversationId;
+    selectedConversation = conversation;
     // TODO: Load conversation messages
     // This would typically make another API call to get the conversation history
-    loadConversationMessages(conversationId);
+    loadConversationMessages(conversation._id);
   };
 });

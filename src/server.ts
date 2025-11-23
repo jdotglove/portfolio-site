@@ -14,22 +14,18 @@ app.use(cookieParser());
 app.use("/api", router);
 
 app.get("/", (_req: Request, res: Response) => {
-    console.log("Serving index.html");
     res.sendFile(path.join(__dirname, "../public/index.html"));
 });
 
 app.get("/knowledge-hub", (req: Request, res: Response) => {
-    console.log("Serving knowledge-hub.html");
     res.sendFile(path.join(__dirname, "../public/knowledge-hub.html"));
 })
 
 app.get("/login", (_req: Request, res: Response) => {
-    console.log("Serving login.html");
     res.sendFile(path.join(__dirname, "../public/login.html"));
 });
 
 app.get("/create-admin", (_req: Request, res: Response) => {
-    console.log("Serving create-admin.html");
     res.sendFile(path.join(__dirname, "../public/create-admin.html"));
 });
 

@@ -26,7 +26,7 @@ const getConversations = (req, res) => __awaiter(void 0, void 0, void 0, functio
     try {
         // Get session token from cookies
         const sessionToken = (_a = req.cookies) === null || _a === void 0 ? void 0 : _a.session_token;
-        console.log(sessionToken, req.cookies);
+
         if (!sessionToken) {
             res.status(403 /* SERVER_RESPONSE_CODES.FORBIDDEN */).send({
                 success: false,

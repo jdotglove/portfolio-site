@@ -1,4 +1,4 @@
-document.getElementById('login-btn').addEventListener('click', async function (e) {
+document.getElementById('login-form').addEventListener('submit', async function (e) {
     e.preventDefault();
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
@@ -26,11 +26,4 @@ document.getElementById('login-btn').addEventListener('click', async function (e
         messageDiv.style.color = 'var(--primary)';
         messageDiv.textContent = error.response?.data?.message || 'An error occurred during login.';
     }
-});
-
-// Add this to see if the form is being submitted multiple times
-let submitCount = 0;
-document.getElementById('login-form').addEventListener('submit', function(e) {
-    submitCount++;
-    console.log(`Form submit event #${submitCount}`);
 });

@@ -19,7 +19,6 @@ export const knowledgeNest = async (req: Request, res: Response) => {
       return;
     }
 
-    // Decode session token to get userId
     const decodedToken = decodeSessionToken(sessionToken);
     if (!decodedToken) {
       res.status(SERVER_RESPONSE_CODES.FORBIDDEN).send({
@@ -29,7 +28,6 @@ export const knowledgeNest = async (req: Request, res: Response) => {
       return;
     }
 
-    // Get message and conversationId from query parameters (for GET) or body (for POST)
     const message = req.query.message || req.body.message;
     const conversationId = req.query.conversationId || req.body.conversationId;
     const userId = req.query.userId || req.body.userId;
@@ -42,19 +40,16 @@ export const knowledgeNest = async (req: Request, res: Response) => {
       return;
     }
 
-    // Set up Server-Sent Events headers
     res.writeHead(200, {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'Cache-Control'
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      "Connection": "keep-alive",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "Cache-Control"
     });
 
-    // Send initial connection confirmation
     res.write(`data: ${JSON.stringify({ type: "connected", message: "Connected to knowledge stream" })}\n\n`);
 
-    // Call external API with streaming response
     const streamExternalAPI = async () => {
       try {
         const externalResponse = await fetch(`${process.env.API_BASE_URL}/knowledge?message=${encodeURIComponent(message)}&conversationId=${conversationId || ''}&userId=${userId}`, {
@@ -69,7 +64,6 @@ export const knowledgeNest = async (req: Request, res: Response) => {
           throw new Error(`External API error: ${externalResponse.status} ${externalResponse.statusText}`);
         }
 
-        // Handle streaming response from external API
         const reader = externalResponse.body?.getReader();
         if (!reader) {
           throw new Error("No response body reader available");
@@ -81,11 +75,12 @@ export const knowledgeNest = async (req: Request, res: Response) => {
         while (true) {
           const { done, value } = await reader.read();
           
-          if (done) break;
+          if (done) {
+            break;
+          }
           
           buffer += decoder.decode(value, { stream: true });
           
-          // Process complete lines
           const lines = buffer.split("\n");
           for (const line of lines) {
             if (line !== "" && line.trim() !== "") {
@@ -94,22 +89,22 @@ export const knowledgeNest = async (req: Request, res: Response) => {
                 if (data.message && data.message !== "") {
                   const chunk = {
                     type: "message",
-                    message: data.message,
+                    body: data.message,
+                    sender: data.personaName,
                     conversationId: conversationId,
                     userId: decodedToken.userId,
-                    timestamp: data.timestamp,
+                    createdAt: data.timestamp,
                   };
                   
                   res.write(`data: ${JSON.stringify(chunk)}\n\n`);
                 }
               } catch (parseError) {
-                console.error('Error parsing external API response:', parseError);
+                console.error("Error parsing external API response:", parseError);
               }
             }
           }
         }
 
-        // Send completion signal
         const completion = {
           type: "complete",
           message: "Response complete",
@@ -122,7 +117,6 @@ export const knowledgeNest = async (req: Request, res: Response) => {
       } catch (error) {
         console.error(`External API streaming error: ${error}`);
         
-        // Fallback to simulated response if external API fails
         const fallbackResponses = [
           "I'm having trouble connecting to the knowledge service.",
           "Let me try a different approach...",
@@ -154,10 +148,9 @@ export const knowledgeNest = async (req: Request, res: Response) => {
       }
     };
 
-    // Start streaming
     streamExternalAPI().catch(error => {
-      console.error('Streaming error:', error);
-      res.write(`data: { 'type': 'error', 'message': 'Streaming error occurred' }\n\n`);
+      console.error("Streaming error:", error);
+      res.write(`data: { "type": "error", "message": "Streaming error occurred" }\n\n`);
       res.end();
     });
 
@@ -170,7 +163,7 @@ export const knowledgeNest = async (req: Request, res: Response) => {
         error: error.message,
       }).end();
     } else {
-      res.write(`data: { 'type': 'error', 'message': '${error.message}' }\n\n`);
+      res.write(`data: { "type": "error", "message": "${error.message}" }\n\n`);
       res.end();
     }
   }

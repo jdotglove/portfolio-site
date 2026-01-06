@@ -69,6 +69,7 @@ export const knowledgeNest = async (req: Request, res: Response) => {
           throw new Error("No response body reader available");
         }
 
+        const sleepNow = (delay: number) => new Promise((resolve) => setTimeout(resolve, delay));
         const decoder = new TextDecoder();
         let buffer = "";
 
@@ -93,7 +94,7 @@ export const knowledgeNest = async (req: Request, res: Response) => {
                     sender: data.personaName,
                     conversationId: conversationId,
                     userId: decodedToken.userId,
-                    createdAt: data.timestamp,
+                    createdAt: new Date(data.timestamp).toISOString(),
                   };
                   
                   res.write(`data: ${JSON.stringify(chunk)}\n\n`);
@@ -103,6 +104,8 @@ export const knowledgeNest = async (req: Request, res: Response) => {
               }
             }
           }
+
+          await sleepNow(10000);
         }
 
         const completion = {

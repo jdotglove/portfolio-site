@@ -1,6 +1,5 @@
 import express from "../../plugins/express";
 import {
-  getConversations,
   createConversation,
   getConversationMessages,
   getCouncilMembers,
@@ -9,7 +8,6 @@ import {
 
 const router = express.Router();
 
-router.get("/", getConversations);
 router.post("/", createConversation);
 router.get(["/:conversationId/messages", "/:conversationId/messages/"], getConversationMessages);
 router.get(["/:conversationId/council", "/:conversationId/council/"], getCouncilMembers);

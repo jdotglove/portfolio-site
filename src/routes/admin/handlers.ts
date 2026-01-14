@@ -2,7 +2,7 @@ import "dotenv/config";
 
 import { Request, Response } from "../../plugins/express";
 import axios from "../../plugins/axios";
-import { SERVER_RESPONSE_CODES } from "../../utils/constants";
+import { SERVER_RESPONSE_CODES, decodeSessionToken } from "../../utils/constants";
 
 /**
  * @function adminLogin
@@ -37,6 +37,10 @@ export const adminLogin = async (req: Request, res: Response) => {
 
     // Store JWT session token in cookie if present in response
     if (response.data && response.data.session && response.data.session.token) {
+      // Clear any existing session cookie first to ensure clean state
+      res.clearCookie("session_token", { path: "/" });
+      
+      // Set new session token
       res.cookie("session_token", response.data.session.token, {
         httpOnly: true, // Prevents XSS attacks
         secure: process.env.NODE_ENV === "production", // HTTPS only in production
@@ -44,7 +48,10 @@ export const adminLogin = async (req: Request, res: Response) => {
         maxAge: 24 * 60 * 60 * 1000, // 24 hours
         path: "/"
       });
-      console.log("JWT session token stored in cookie");
+      
+      // Decode token to log user info
+      const decodedToken = decodeSessionToken(response.data.session.token);
+      console.log("JWT session token stored in cookie for user:", decodedToken?.userId || "unknown");
     }
   } catch (error: any) {
     const errorObj = {

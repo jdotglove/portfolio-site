@@ -193,14 +193,6 @@ window.addEventListener("DOMContentLoaded", async function () {
       bodyDiv.style.whiteSpace = "pre-wrap";
       currentAssistantMessageDiv.appendChild(bodyDiv);
       
-      //const senderDiv = document.createElement("div");
-      //senderDiv.className = "message-sender";
-      //senderDiv.style.fontSize = "0.85rem";
-      //senderDiv.style.opacity = "0.7";
-      //senderDiv.style.lineHeight = "1.3";
-      //senderDiv.innerHTML = `Council - ${new Date().toLocaleTimeString()}`;
-      //currentAssistantMessageDiv.appendChild(senderDiv);
-      
       chatMessages.appendChild(currentAssistantMessageDiv);
 
       const eventSource = new EventSource(`/api/knowledge?message=${
@@ -232,7 +224,7 @@ window.addEventListener("DOMContentLoaded", async function () {
                 // Append chunk to the assistant message
                 addMessageToChat("assistant", data);
                 break;
-
+                
               case "complete":
                 console.log("Streaming complete");
                 // Remove typing indicator if still present
@@ -422,14 +414,13 @@ window.addEventListener("DOMContentLoaded", async function () {
 
   if (!conversationsLoaded) {
     console.log("loading conversations")
-    loadConversations();
+  loadConversations();
     conversationsLoaded = true;
   }
 
   async function loadConversations() {
-    console.log("here")
     try {
-      const response = await axios.get("/api/conversation");
+      const response = await axios.get("/api/user/conversations");
       
       if (response.data && response.data.conversations) {
         displayConversations(response.data.conversations.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)));

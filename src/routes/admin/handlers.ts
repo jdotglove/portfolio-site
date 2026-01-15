@@ -37,6 +37,10 @@ export const adminLogin = async (req: Request, res: Response) => {
 
     // Store JWT session token in cookie if present in response
     if (response.data && response.data.session && response.data.session.token) {
+      // Decode token to get user info before clearing old cookie
+      const decodedToken = decodeSessionToken(response.data.session.token);
+      const newUserId = decodedToken?.userId;
+      
       // Clear any existing session cookie first to ensure clean state
       res.clearCookie("session_token", { path: "/" });
       
@@ -49,9 +53,7 @@ export const adminLogin = async (req: Request, res: Response) => {
         path: "/"
       });
       
-      // Decode token to log user info
-      const decodedToken = decodeSessionToken(response.data.session.token);
-      console.log("JWT session token stored in cookie for user:", decodedToken?.userId || "unknown");
+      console.log("JWT session token stored in cookie for user:", newUserId || "unknown", "username:", decodedToken?.username || "unknown");
     }
   } catch (error: any) {
     const errorObj = {
@@ -92,10 +94,31 @@ export const createAdmin = async (req: Request, res: Response) => {
       }
     });
 
-    statusCode = SERVER_RESPONSE_CODES.ACCEPTED;
+    statusCode = response.status;
     payload = {
-      success: true,
+      ...response.data,
     };
+
+    // Store JWT session token in cookie if present in response
+    if (response.data && response.data.session && response.data.session.token) {
+      // Decode token to get user info before clearing old cookie
+      const decodedToken = decodeSessionToken(response.data.session.token);
+      const newUserId = decodedToken?.userId;
+      
+      // Clear any existing session cookie first to ensure clean state
+      res.clearCookie("session_token", { path: "/" });
+      
+      // Set new session token
+      res.cookie("session_token", response.data.session.token, {
+        httpOnly: true, // Prevents XSS attacks
+        secure: process.env.NODE_ENV === "production", // HTTPS only in production
+        sameSite: "strict", // CSRF protection
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+        path: "/"
+      });
+      
+      console.log("JWT session token stored in cookie for user:", newUserId || "unknown", "username:", decodedToken?.username || "unknown");
+    }
   } catch (error: any) {
     const errorObj = {
       status: error.status || SERVER_RESPONSE_CODES.SERVER_ERROR,

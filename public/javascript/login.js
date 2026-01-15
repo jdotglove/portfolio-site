@@ -14,7 +14,7 @@ document.getElementById("login-form").addEventListener("submit", async function 
             document.cookie = `session_token=${session.token}; path=/; httpOnly; secure; sameSite=strict; max-age=86400`;
             // Redirect to knowledge hub (session token is stored in httpOnly cookie)
             setTimeout(() => {
-                window.location.href = "/knowledge-hub";
+                window.location.href = "/knowledge-hub.html";
             }, 1000);
         } else {
             messageDiv.style.color = "var(--primary)";

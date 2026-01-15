@@ -41,3 +41,15 @@
     margin-top: 1rem;
     text-align: center;
 }
+.signup-container form p {
+    margin-top: 1.5rem;
+    text-align: center;
+    color: var(--text-secondary);
+}
+.signup-container form p a {
+    color: var(--primary);
+    text-decoration: none;
+}
+.signup-container form p a:hover {
+    text-decoration: underline;
+}

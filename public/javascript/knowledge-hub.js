@@ -16,6 +16,50 @@ let deliberationIndicator = null; // Track the delibration indicator
 let conversationsLoaded = false;
 
 window.addEventListener("DOMContentLoaded", async function () {
+  // Check for user change and clear cache if needed
+  async function checkAndClearUserCache() {
+    try {
+      // Get the current session's userId by making a test API call
+      // We'll extract it from the first conversation load response
+      const storedUserId = localStorage.getItem("lastKnownUserId");
+      const storedUsername = localStorage.getItem("lastKnownUsername");
+      
+      // Try to get current user info from a lightweight endpoint
+      // Since we don't have a dedicated user info endpoint, we'll check on first conversation load
+      // For now, clear cache if we detect a potential user change
+      if (storedUserId || storedUsername) {
+        // We'll verify the user matches after loading conversations
+        console.log("Previous user detected in cache:", storedUserId || storedUsername);
+      }
+    } catch (error) {
+      console.error("Error checking user cache:", error);
+    }
+  }
+  
+  // Clear all user-specific cache
+  function clearUserCache() {
+    console.log("Clearing user cache...");
+    localStorage.removeItem("councilConfig");
+    localStorage.removeItem("lastKnownUserId");
+    localStorage.removeItem("lastKnownUsername");
+    selectedConversation = null;
+    currentUserId = null;
+    conversationsLoaded = false;
+    
+    // Clear UI
+    if (conversationList) {
+      conversationList.innerHTML = "";
+    }
+    if (chatMessages) {
+      chatMessages.innerHTML = `
+        <div style="color:var(--text-secondary);text-align:center;margin-top:2rem;">Select a conversation or start a new one.</div>
+      `;
+    }
+  }
+  
+  // Check for user change on page load
+  await checkAndClearUserCache();
+  
   const form = document.querySelector(".chat-input-bar");
   const input = form.querySelector("textarea#messageInput") || form.querySelector("input[type='text']");
   const messageCounter = document.getElementById("messageCounter");
@@ -420,7 +464,50 @@ window.addEventListener("DOMContentLoaded", async function () {
 
   async function loadConversations() {
     try {
-      const response = await axios.get("/api/user/conversations");
+      // Add cache-busting parameter to ensure fresh data
+      const response = await axios.get("/api/user/conversations", {
+        params: {
+          _t: Date.now() // Cache busting
+        }
+      });
+      
+      console.log("Conversations loaded:", response.data?.conversations?.length || 0, "conversations");
+      
+      // Extract userId from the first conversation to detect user changes
+      if (response.data && response.data.conversations && response.data.conversations.length > 0) {
+        const firstConversation = response.data.conversations[0];
+        const currentUserId = firstConversation.user;
+        const storedUserId = localStorage.getItem("lastKnownUserId");
+        
+        // If userId has changed, clear all cache
+        if (storedUserId && storedUserId !== currentUserId) {
+          console.log("User change detected! Clearing cache...");
+          clearUserCache();
+          // Reload conversations after clearing cache
+          const freshResponse = await axios.get("/api/user/conversations", {
+            params: { _t: Date.now() }
+          });
+          if (freshResponse.data && freshResponse.data.conversations) {
+            displayConversations(freshResponse.data.conversations.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)));
+          } else {
+            displayConversations([]);
+          }
+          return;
+        }
+        
+        // Store current userId for future checks
+        if (currentUserId) {
+          localStorage.setItem("lastKnownUserId", currentUserId);
+        }
+      } else {
+        // No conversations - clear stored userId to force fresh load next time
+        const storedUserId = localStorage.getItem("lastKnownUserId");
+        if (storedUserId) {
+          // User might have switched, clear cache to be safe
+          console.log("No conversations found, clearing cache to be safe...");
+          clearUserCache();
+        }
+      }
       
       if (response.data && response.data.conversations) {
         displayConversations(response.data.conversations.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)));

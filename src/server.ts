@@ -25,8 +25,8 @@ app.get("/login", (_req: Request, res: Response) => {
     res.sendFile(path.join(__dirname, "../public/login.html"));
 });
 
-app.get("/create-admin", (_req: Request, res: Response) => {
-    res.sendFile(path.join(__dirname, "../public/create-admin.html"));
+app.get("/signup", (_req: Request, res: Response) => {
+    res.sendFile(path.join(__dirname, "../public/signup.html"));
 });
 
 // Graceful shutdown for App Runner

@@ -40,3 +40,15 @@
     margin-top: 1rem;
     text-align: center;
 }
+.login-container form p {
+    margin-top: 1.5rem;
+    text-align: center;
+    color: var(--text-secondary);
+}
+.login-container form p a {
+    color: var(--primary);
+    text-decoration: none;
+}
+.login-container form p a:hover {
+    text-decoration: underline;
+}

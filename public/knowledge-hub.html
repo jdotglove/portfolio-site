@@ -9,21 +9,137 @@
   <style>
     .chat-layout {
       display: flex;
+      flex-direction: column;
       height: 100vh;
       background: var(--background);
       color: var(--text);
       position: relative;
     }
     
+    .top-navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1.5rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      z-index: 100;
+    }
+    
+    .navbar-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin: 0;
+    }
+    
+    .navbar-menu {
+      position: relative;
+    }
+    
+    .navbar-menu-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      width: 36px;
+      height: 36px;
+    }
+    
+    .navbar-menu-btn:hover {
+      background: var(--background);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    
+    .navbar-menu-btn:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(235, 42, 74, 0.2);
+    }
+    
+    .navbar-dropdown {
+      position: absolute;
+      top: calc(100% + 0.5rem);
+      right: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      min-width: 180px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.2s ease;
+      z-index: 1000;
+      overflow: hidden;
+    }
+    
+    .navbar-dropdown.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    
+    .navbar-dropdown-item {
+      display: block;
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: none;
+      border: none;
+      color: var(--text);
+      text-align: left;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: background 0.2s ease;
+      text-decoration: none;
+    }
+    
+    .navbar-dropdown-item:hover {
+      background: var(--background);
+      color: var(--primary);
+    }
+    
+    .navbar-dropdown-item:first-child {
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+    }
+    
+    .navbar-dropdown-item:last-child {
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+    }
+    
+    .navbar-dropdown-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0.25rem 0;
+    }
+    
+    .chat-layout-content {
+      display: flex;
+      flex: 1 1 0;
+      min-height: 0;
+      overflow: hidden;
+    }
+    
     .chat-sidebar {
       width: 260px;
+      flex-shrink: 0;
       background: var(--surface);
       border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
       padding: 1rem 0.5rem;
       transition: transform 0.3s ease;
-      height: 100vh;
+      height: 100%;
       overflow: hidden;
     }
     
@@ -46,6 +162,7 @@
       background: var(--background);
       border-right: 1px solid var(--border);
       position: relative;
+      min-width: 0;
     }
     
     .chat-header {
@@ -185,11 +302,12 @@
     
     .chat-right-panel {
       width: 320px;
+      flex-shrink: 0;
       background: var(--surface);
       border-left: 1px solid var(--border);
       display: flex;
       flex-direction: column;
-      height: 100vh;
+      height: 100%;
       overflow: hidden;
     }
     
@@ -200,11 +318,50 @@
       -webkit-overflow-scrolling: touch;
     }
     
+    .council-panel-header {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    
     .council-panel h2 {
       color: var(--primary);
       font-size: 1.2rem;
-      margin-bottom: 1rem;
+      margin: 0;
       text-align: center;
+      flex: 1;
+    }
+    
+    .council-panel-close-btn {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 1.25rem;
+      cursor: pointer;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      width: 32px;
+      height: 32px;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .council-panel-close-btn:hover {
+      background: var(--background);
+      color: var(--primary);
+    }
+    
+    .council-panel-close-btn:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(235, 42, 74, 0.2);
     }
     
     .council-count-selector {
@@ -601,12 +758,36 @@
     /* Mobile responsive breakpoints */
     @media (max-width: 1200px) {
       .chat-right-panel {
-        display: none;
+        position: fixed;
+        top: 0;
+        right: 0;
+        height: 100vh;
+        z-index: 1001;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+      }
+      
+      .chat-right-panel.mobile-open {
+        transform: translateX(0);
+      }
+      
+      .council-toggle-btn {
+        display: flex !important;
+      }
+      
+      .council-panel-close-btn {
+        display: flex !important;
+      }
+      
+      .chat-right-panel {
+        width: 100%;
+        max-width: 400px;
       }
     }
     
     @media (max-width: 768px) {
-      .chat-layout {
+      .chat-layout-content {
         flex-direction: column;
       }
       
@@ -622,7 +803,7 @@
         position: absolute;
         top: 0;
         left: 0;
-        height: 100vh;
+        height: 100%;
         z-index: 1000;
         transform: translateX(-100%);
         box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
@@ -647,8 +828,40 @@
       
       .chat-input-bar textarea {
         font-size: 16px; /* Prevents zoom on iOS */
+      }
+      
+      .top-navbar {
+        padding: 0.75rem 1rem;
+      }
+      
+      .navbar-title {
+        font-size: 1.1rem;
+      }
+      
+      .navbar-dropdown {
+        right: 0;
+        left: auto;
+        min-width: 160px;
+      }
+      
+      .council-toggle-btn {
+        display: flex !important;
+      }
+      
+      .council-toggle-btn:hover {
+        background: var(--background);
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+      
+      .council-panel {
         padding: 0.75rem;
         padding-bottom: 2rem;
+      }
+      
+      .chat-right-panel {
+        width: 100%;
+        max-width: 400px;
       }
       
       .chat-input-bar input[type="text"] {
@@ -700,6 +913,43 @@
     
     .sidebar-overlay.mobile-open {
       display: block;
+    }
+    
+    .council-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+    }
+    
+    .council-overlay.mobile-open {
+      display: block;
+    }
+    
+    .council-toggle-btn {
+      display: none;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: all 0.2s ease;
+      width: 36px;
+      height: 36px;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .council-toggle-btn:hover {
+      background: var(--background);
+      border-color: var(--primary);
+      color: var(--primary);
     }
     
     /* Message styling for better mobile readability */
@@ -800,11 +1050,6 @@
       background: var(--primary-dark);
     }
     
-    #logoutBtn:hover {
-      background: var(--surface);
-      border-color: var(--primary);
-      color: var(--primary);
-    }
     
     /* Modal styles */
     .modal-overlay {
@@ -908,34 +1153,59 @@
 </head>
 <body>
   <div class="chat-layout">
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-    
-    <aside class="chat-sidebar" id="chatSidebar">
-      <h2 style="color:var(--primary);font-size:1.2rem;margin-bottom:1.5rem;text-align:center;">Conversations</h2>
-      <button id="newConversationBtn">+ New Conversation</button>
-      <ul style="list-style:none;padding:0;margin:0;" id="conversationList">
-        <!-- Conversations will be loaded here by JavaScript -->
-      </ul>
-    </aside>
-    
-    <main class="chat-main">
-      <div class="chat-header">
-        <button class="mobile-menu-btn" id="mobileMenuBtn">
-          <i class="fas fa-bars"></i>
-        </button>
-        <h1 style="margin:0;margin-left:1rem;font-size:1.2rem;color:var(--text);">Knowledge Hub</h1>
-        <button id="logoutBtn" style="
-          margin-left: auto;
-          background: var(--background);
-          color: var(--text);
+    <nav class="top-navbar">
+      <h1 class="navbar-title">Knowledge Hub</h1>
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <button class="council-toggle-btn" id="councilToggleBtn" aria-label="Toggle Council Panel" style="
+          display: none;
+          background: none;
           border: 1px solid var(--border);
-          border-radius: 4px;
-          padding: 0.5rem 1rem;
+          color: var(--text);
+          padding: 0.5rem 0.75rem;
+          border-radius: 6px;
           cursor: pointer;
-          font-size: 0.9rem;
+          font-size: 1.1rem;
           transition: all 0.2s ease;
-        ">Logout</button>
+          width: 36px;
+          height: 36px;
+          align-items: center;
+          justify-content: center;
+        ">
+          <i class="fas fa-users-cog"></i>
+        </button>
+        <div class="navbar-menu">
+          <button class="navbar-menu-btn" id="navbarMenuBtn" aria-label="Menu">
+            <i class="fas fa-user-circle"></i>
+          </button>
+          <div class="navbar-dropdown" id="navbarDropdown">
+            <button class="navbar-dropdown-item" id="logoutBtn">
+              <i class="fas fa-sign-out-alt" style="margin-right: 0.5rem;"></i>
+              Logout
+            </button>
+          </div>
+        </div>
       </div>
+    </nav>
+    
+    <div class="chat-layout-content">
+      <div class="sidebar-overlay" id="sidebarOverlay"></div>
+      <div class="council-overlay" id="councilOverlay"></div>
+      
+      <aside class="chat-sidebar" id="chatSidebar">
+        <h2 style="color:var(--primary);font-size:1.2rem;margin-bottom:1.5rem;text-align:center;">Conversations</h2>
+        <button id="newConversationBtn">+ New Conversation</button>
+        <ul style="list-style:none;padding:0;margin:0;" id="conversationList">
+          <!-- Conversations will be loaded here by JavaScript -->
+        </ul>
+      </aside>
+      
+      <main class="chat-main">
+        <div class="chat-header">
+          <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h1 style="margin:0;margin-left:1rem;font-size:1.2rem;color:var(--text);">Knowledge Hub</h1>
+        </div>
       
       <div class="chat-messages" id="chatMessages">
         <!-- Messages will go here -->
@@ -954,11 +1224,16 @@
         </div>
         <button type="submit">Send</button>
       </form>
-    </main>
-    
-    <aside class="chat-right-panel">
+      </main>
+      
+      <aside class="chat-right-panel">
       <div class="council-panel">
-        <h2>Council Management</h2>
+        <div class="council-panel-header">
+          <h2>Council Management</h2>
+          <button class="council-panel-close-btn" id="councilPanelCloseBtn" aria-label="Close Council Panel">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
         
         <div class="council-no-conversation" id="councilNoConversation">
           <div class="council-no-conversation-icon">
@@ -985,7 +1260,8 @@
           <div id="councilStatus" class="council-status" style="display: none;"></div>
         </div>
       </div>
-    </aside>
+      </aside>
+    </div>
   </div>
   
   <!-- Conversation Title Modal -->

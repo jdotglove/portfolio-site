@@ -1150,4 +1150,124 @@ window.addEventListener("DOMContentLoaded", async function () {
   if (councilNoConversation && councilConfigForm) {
     hideCouncilConfigForm();
   }
+  
+  // Navbar dropdown menu handler
+  const navbarMenuBtn = document.getElementById("navbarMenuBtn");
+  const navbarDropdown = document.getElementById("navbarDropdown");
+  
+  if (navbarMenuBtn && navbarDropdown) {
+    // Toggle dropdown on menu button click
+    navbarMenuBtn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      navbarDropdown.classList.toggle("show");
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener("click", function(e) {
+      if (!navbarMenuBtn.contains(e.target) && !navbarDropdown.contains(e.target)) {
+        navbarDropdown.classList.remove("show");
+      }
+    });
+    
+    // Close dropdown on escape key
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape" && navbarDropdown.classList.contains("show")) {
+        navbarDropdown.classList.remove("show");
+      }
+    });
+  }
+  
+  // Logout handler
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", async function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      try {
+        // Close dropdown
+        if (navbarDropdown) {
+          navbarDropdown.classList.remove("show");
+        }
+        
+        // Disable button to prevent multiple clicks
+        logoutBtn.disabled = true;
+        const originalContent = logoutBtn.innerHTML;
+        logoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 0.5rem;"></i>Logging out...';
+        
+        // Clear the session cookie
+        document.cookie = "session_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+        
+        // Make API call to expire the session
+        try {
+          const response = await axios.post("/api/admin/logout");
+          console.log("Logout response:", response.data);
+        } catch (error) {
+          // Log error but continue with redirect
+          console.error("Error calling logout API:", error);
+        }
+        
+        // Clear all user-specific cache
+        clearUserCache();
+        
+        // Close any active event sources
+        if (currentEventSource) {
+          currentEventSource.close();
+          currentEventSource = null;
+        }
+        
+        // Redirect to login page
+        window.location.href = "/login";
+      } catch (error) {
+        console.error("Error during logout:", error);
+        // Still redirect to login even if there's an error
+        clearUserCache();
+        document.cookie = "session_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+        window.location.href = "/login";
+      }
+    });
+  }
+  
+  // Council panel toggle for mobile/small screens
+  const councilToggleBtn = document.getElementById("councilToggleBtn");
+  const councilRightPanel = document.querySelector(".chat-right-panel");
+  const councilOverlay = document.getElementById("councilOverlay");
+  const councilPanelCloseBtn = document.getElementById("councilPanelCloseBtn");
+  
+  // Function to close the council panel
+  function closeCouncilPanel() {
+    if (councilRightPanel && councilOverlay) {
+      councilRightPanel.classList.remove("mobile-open");
+      councilOverlay.classList.remove("mobile-open");
+    }
+  }
+  
+  if (councilToggleBtn && councilRightPanel && councilOverlay) {
+    // Toggle council panel
+    councilToggleBtn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      councilRightPanel.classList.toggle("mobile-open");
+      councilOverlay.classList.toggle("mobile-open");
+    });
+    
+    // Close council panel when clicking overlay
+    councilOverlay.addEventListener("click", function() {
+      closeCouncilPanel();
+    });
+    
+    // Close council panel with close button
+    if (councilPanelCloseBtn) {
+      councilPanelCloseBtn.addEventListener("click", function(e) {
+        e.stopPropagation();
+        closeCouncilPanel();
+      });
+    }
+    
+    // Close council panel on escape key
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape" && councilRightPanel.classList.contains("mobile-open")) {
+        closeCouncilPanel();
+      }
+    });
+  }
 });

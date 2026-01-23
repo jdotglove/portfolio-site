@@ -131,3 +131,64 @@ export const createAdmin = async (req: Request, res: Response) => {
     res.status(statusCode).send(payload).end();
   }
 }
+
+/**
+ * @function adminLogout
+ * @param req
+ * Expires the session on the external API and clears the session cookie
+ */
+export const adminLogout = async (req: Request, res: Response) => {
+  let payload, statusCode;
+  try {
+    // Get session token from cookie
+    const sessionToken = req.cookies?.session_token;
+    
+    if (sessionToken) {
+      // Decode token to get user info for logging
+      const decodedToken = decodeSessionToken(sessionToken);
+      const userId = decodedToken?.userId || "unknown";
+      
+      // Call external API to expire the session
+      try {
+        await axios(`${process.env.API_BASE_URL}/admin/logout`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            Authorization: `Bearer ${process.env.API_KEY}`,
+            "X-Session-Token": sessionToken, // Pass session token if API requires it
+          }
+        });
+        console.log(`Session expired for user: ${userId}`);
+      } catch (error: any) {
+        // Log error but continue with cookie clearing
+        console.error(`Error expiring session on external API: ${error.response?.data?.message || error.message}`);
+      }
+    }
+    
+    // Clear the session cookie
+    res.clearCookie("session_token", { path: "/" });
+    
+    statusCode = SERVER_RESPONSE_CODES.ACCEPTED;
+    payload = {
+      success: true,
+      message: "Logged out successfully"
+    };
+  } catch (error: any) {
+    const errorObj = {
+      status: error.status || SERVER_RESPONSE_CODES.SERVER_ERROR,
+      message: error.response?.data?.message || error.message || "Error during logout",
+    };
+    statusCode = errorObj.status;
+    payload = { 
+      success: false,
+      message: errorObj.message 
+    };
+    console.error(`SERVER - Error during logout: ${errorObj.message}`);
+    
+    // Still try to clear the cookie even if there's an error
+    res.clearCookie("session_token", { path: "/" });
+  } finally {
+    res.status(statusCode).send(payload).end();
+  }
+}

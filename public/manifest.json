@@ -1,0 +1,16 @@
+{
+  "short_name": "The Glover Dimension",
+  "name": "The Glover Dimension - Portfolio Site for Jarod Glover",
+  "icons": [
+    {
+      "src": "/assets/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512"
+    }
+],
+  "background_color": "#1E1E24",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#EB2A4A",
+  "description": "Portfolio site for Jarod Glover to showcase experiences and past projects."
+}
